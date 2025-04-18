@@ -1,27 +1,13 @@
-import React, { useState } from 'react';
-import { 
-  Card, 
-  CardContent, 
-  CardHeader, 
-  CardTitle,
-  CardDescription
-} from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
-} from '@/components/ui/table';
-import { Badge } from '@/components/ui/badge';
-import { Search, Package, Calendar, CheckCircle, XCircle, Clock } from 'lucide-react';
-import { cn } from '@/lib/utils';
 
-const DELIVERY_HISTORY = [
+import React, { useState } from 'react';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Package } from 'lucide-react';
+import { SearchBar } from './SearchBar';
+import { DeliveryTable } from './DeliveryTable';
+import { DeliveryDetails } from './DeliveryDetails';
+import type { DeliveryRecord } from './types';
+
+const DELIVERY_HISTORY: DeliveryRecord[] = [
   {
     id: 'DEL-001',
     date: '2025-04-18',
@@ -78,32 +64,8 @@ const DeliveryHistory: React.FC = () => {
     );
   });
 
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case 'delivered':
-        return (
-          <Badge className="bg-green-500 hover:bg-green-600">
-            <CheckCircle className="mr-1 h-3 w-3" />
-            Delivered
-          </Badge>
-        );
-      case 'failed':
-        return (
-          <Badge variant="destructive">
-            <XCircle className="mr-1 h-3 w-3" />
-            Failed
-          </Badge>
-        );
-      case 'pending':
-        return (
-          <Badge variant="outline" className="border-amber-500 text-amber-500">
-            <Clock className="mr-1 h-3 w-3" />
-            Pending
-          </Badge>
-        );
-      default:
-        return <Badge>{status}</Badge>;
-    }
+  const handleParcelSelect = (id: string) => {
+    setSelectedParcel(selectedParcel === id ? null : id);
   };
 
   return (
@@ -113,114 +75,26 @@ const DeliveryHistory: React.FC = () => {
           <Package className="mr-2 h-5 w-5 text-white" />
           Delivery History
         </CardTitle>
-        <CardDescription className="text-white/80">View and track your past delivery requests</CardDescription>
+        <CardDescription className="text-white/80">
+          View and track your past delivery requests
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
           <div className="flex space-x-2">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-3 h-4 w-4 text-white/50" />
-              <Input
-                placeholder="Search deliveries..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-9 bg-green-600 border-neon-green text-white placeholder-white/50"
-              />
-            </div>
+            <SearchBar value={searchQuery} onChange={setSearchQuery} />
           </div>
           
-          <div className="rounded-md border border-neon-green overflow-hidden">
-            <Table>
-              <TableHeader className="bg-green-600">
-                <TableRow className="hover:bg-green-700">
-                  <TableHead className="text-white">Parcel ID</TableHead>
-                  <TableHead className="text-white">Date & Time</TableHead>
-                  <TableHead className="text-white">Location</TableHead>
-                  <TableHead className="text-white">Status</TableHead>
-                  <TableHead className="text-white">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredDeliveries.length > 0 ? (
-                  filteredDeliveries.map((delivery) => (
-                    <TableRow 
-                      key={delivery.id}
-                      className={cn(
-                        "hover:bg-green-700 text-white",
-                        selectedParcel === delivery.id ? "bg-green-700" : ""
-                      )}
-                    >
-                      <TableCell className="font-medium text-white">{delivery.id}</TableCell>
-                      <TableCell className="text-white">
-                        <div className="flex items-center">
-                          <Calendar className="mr-2 h-3 w-3 text-white/50" />
-                          {`${delivery.date}, ${delivery.time}`}
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-white">{delivery.location}</TableCell>
-                      <TableCell>{getStatusBadge(delivery.status)}</TableCell>
-                      <TableCell>
-                        <Button 
-                          variant="ghost" 
-                          size="sm"
-                          className="hover:bg-green-800 text-white"
-                          onClick={() => setSelectedParcel(
-                            selectedParcel === delivery.id ? null : delivery.id
-                          )}
-                        >
-                          {selectedParcel === delivery.id ? "Hide Details" : "View Details"}
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))
-                ) : (
-                  <TableRow>
-                    <TableCell colSpan={5} className="text-center py-4 text-white/50">
-                      No deliveries found matching your search
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          </div>
+          <DeliveryTable 
+            deliveries={filteredDeliveries}
+            selectedParcel={selectedParcel}
+            onSelectParcel={handleParcelSelect}
+          />
           
           {selectedParcel && (
-            <Card className="bg-green-600 border-neon-green text-white">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-white">Delivery Details</CardTitle>
-              </CardHeader>
-              <CardContent>
-                {(() => {
-                  const delivery = DELIVERY_HISTORY.find(d => d.id === selectedParcel);
-                  if (!delivery) return null;
-                  
-                  return (
-                    <div className="space-y-3 text-sm">
-                      <div className="grid grid-cols-2 gap-1">
-                        <div className="text-white/50">Parcel ID:</div>
-                        <div className="text-white">{delivery.id}</div>
-                      </div>
-                      <div className="grid grid-cols-2 gap-1">
-                        <div className="text-white/50">Recipient:</div>
-                        <div>{delivery.recipient}</div>
-                      </div>
-                      <div className="grid grid-cols-2 gap-1">
-                        <div className="text-white/50">Location:</div>
-                        <div>{delivery.location}</div>
-                      </div>
-                      <div className="grid grid-cols-2 gap-1">
-                        <div className="text-white/50">Date & Time:</div>
-                        <div>{`${delivery.date}, ${delivery.time}`}</div>
-                      </div>
-                      <div className="grid grid-cols-2 gap-1">
-                        <div className="text-white/50">Status:</div>
-                        <div>{getStatusBadge(delivery.status)}</div>
-                      </div>
-                    </div>
-                  );
-                })()}
-              </CardContent>
-            </Card>
+            <DeliveryDetails 
+              delivery={DELIVERY_HISTORY.find(d => d.id === selectedParcel)!} 
+            />
           )}
         </div>
       </CardContent>
