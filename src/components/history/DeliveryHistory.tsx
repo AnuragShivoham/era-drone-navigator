@@ -69,13 +69,13 @@ const DeliveryHistory: React.FC = () => {
   };
 
   return (
-    <Card className="bg-green-500 border-neon-green text-white">
+    <Card className="bg-green-50 border-green-200 shadow-sm transition-all duration-200">
       <CardHeader>
-        <CardTitle className="flex items-center text-white">
-          <Package className="mr-2 h-5 w-5 text-white" />
+        <CardTitle className="flex items-center text-green-800">
+          <Package className="mr-2 h-5 w-5 text-green-600" />
           Delivery History
         </CardTitle>
-        <CardDescription className="text-white/80">
+        <CardDescription className="text-green-600">
           View and track your past delivery requests
         </CardDescription>
       </CardHeader>
