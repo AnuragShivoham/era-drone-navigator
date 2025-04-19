@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { 
   Card, 
@@ -109,37 +108,37 @@ const DeliveryHistory: React.FC = () => {
   };
 
   return (
-    <Card className="bg-era-card border-era-primary/20">
+    <Card 
+      className="bg-era-background border-[#8B5CF6] border-2 rounded-xl shadow-[0_0_15px_rgba(139,92,246,0.3)]"
+    >
       <CardHeader>
-        <CardTitle className="flex items-center">
-          <Package className="mr-2 h-5 w-5" />
+        <CardTitle className="flex items-center text-white">
+          <Package className="mr-2 h-5 w-5 text-[#8B5CF6]" />
           Delivery History
         </CardTitle>
-        <CardDescription>View and track your past delivery requests</CardDescription>
+        <CardDescription className="text-white/70">View and track your past delivery requests</CardDescription>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
           <div className="flex space-x-2">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-3 h-4 w-4 text-era-muted" />
+              <Search className="absolute left-3 top-3 h-4 w-4 text-white/50" />
               <Input
                 placeholder="Search deliveries..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-9 bg-era-background border-era-primary/20"
+                className="pl-9 bg-era-background/10 border-[#8B5CF6] text-white placeholder-white/50 focus:ring-[#8B5CF6] focus:border-[#8B5CF6]"
               />
             </div>
           </div>
           
-          <div className="rounded-md border border-era-primary/20 overflow-hidden">
+          <div className="rounded-md border-2 border-[#8B5CF6] overflow-hidden">
             <Table>
-              <TableHeader className="bg-era-background">
+              <TableHeader className="bg-era-background/20">
                 <TableRow>
-                  <TableHead>Parcel ID</TableHead>
-                  <TableHead>Date & Time</TableHead>
-                  <TableHead>Location</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Actions</TableHead>
+                  {['Parcel ID', 'Date & Time', 'Location', 'Status', 'Actions'].map((header) => (
+                    <TableHead key={header} className="text-white">{header}</TableHead>
+                  ))}
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -148,14 +147,14 @@ const DeliveryHistory: React.FC = () => {
                     <TableRow 
                       key={delivery.id}
                       className={cn(
-                        "hover:bg-era-primary/10",
-                        selectedParcel === delivery.id ? "bg-era-primary/5" : ""
+                        "hover:bg-[#8B5CF6]/10 text-white",
+                        selectedParcel === delivery.id ? "bg-[#8B5CF6]/5" : ""
                       )}
                     >
                       <TableCell className="font-medium">{delivery.id}</TableCell>
                       <TableCell>
                         <div className="flex items-center">
-                          <Calendar className="mr-2 h-3 w-3 text-era-muted" />
+                          <Calendar className="mr-2 h-3 w-3 text-white/50" />
                           {`${delivery.date}, ${delivery.time}`}
                         </div>
                       </TableCell>
@@ -165,7 +164,7 @@ const DeliveryHistory: React.FC = () => {
                         <Button 
                           variant="ghost" 
                           size="sm"
-                          className="hover:bg-era-primary/10 text-era-text"
+                          className="hover:bg-[#8B5CF6]/10 text-white"
                           onClick={() => setSelectedParcel(
                             selectedParcel === delivery.id ? null : delivery.id
                           )}
@@ -177,7 +176,7 @@ const DeliveryHistory: React.FC = () => {
                   ))
                 ) : (
                   <TableRow>
-                    <TableCell colSpan={5} className="text-center py-4 text-era-muted">
+                    <TableCell colSpan={5} className="text-center py-4 text-white/50">
                       No deliveries found matching your search
                     </TableCell>
                   </TableRow>
@@ -187,9 +186,9 @@ const DeliveryHistory: React.FC = () => {
           </div>
           
           {selectedParcel && (
-            <Card className="bg-era-background border-era-primary/20">
+            <Card className="bg-era-background/20 border-[#8B5CF6] border-2 rounded-xl">
               <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium">Delivery Details</CardTitle>
+                <CardTitle className="text-sm font-medium text-white">Delivery Details</CardTitle>
               </CardHeader>
               <CardContent>
                 {(() => {
@@ -197,27 +196,19 @@ const DeliveryHistory: React.FC = () => {
                   if (!delivery) return null;
                   
                   return (
-                    <div className="space-y-3 text-sm">
-                      <div className="grid grid-cols-2 gap-1">
-                        <div className="text-era-muted">Parcel ID:</div>
-                        <div>{delivery.id}</div>
-                      </div>
-                      <div className="grid grid-cols-2 gap-1">
-                        <div className="text-era-muted">Recipient:</div>
-                        <div>{delivery.recipient}</div>
-                      </div>
-                      <div className="grid grid-cols-2 gap-1">
-                        <div className="text-era-muted">Location:</div>
-                        <div>{delivery.location}</div>
-                      </div>
-                      <div className="grid grid-cols-2 gap-1">
-                        <div className="text-era-muted">Date & Time:</div>
-                        <div>{`${delivery.date}, ${delivery.time}`}</div>
-                      </div>
-                      <div className="grid grid-cols-2 gap-1">
-                        <div className="text-era-muted">Status:</div>
-                        <div>{getStatusBadge(delivery.status)}</div>
-                      </div>
+                    <div className="space-y-3 text-sm text-white">
+                      {[
+                        { label: 'Parcel ID:', value: delivery.id },
+                        { label: 'Recipient:', value: delivery.recipient },
+                        { label: 'Location:', value: delivery.location },
+                        { label: 'Date & Time:', value: `${delivery.date}, ${delivery.time}` },
+                        { label: 'Status:', value: getStatusBadge(delivery.status) }
+                      ].map(({ label, value }) => (
+                        <div key={label} className="grid grid-cols-2 gap-1">
+                          <div className="text-white/70">{label}</div>
+                          <div>{value}</div>
+                        </div>
+                      ))}
                     </div>
                   );
                 })()}
