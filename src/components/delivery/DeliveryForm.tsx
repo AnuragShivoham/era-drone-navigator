@@ -64,14 +64,14 @@ const DeliveryForm: React.FC = () => {
       let botResponse = '';
       
       if (chatMessage.toLowerCase().includes('deliver to hostel c')) {
-        botResponse = 'I'll set up a delivery to Hostel C Block. Please complete the delivery form with your details.';
+        botResponse = "I'll set up a delivery to Hostel C Block. Please complete the delivery form with your details.";
         setFormData(prev => ({ ...prev, dropZone: '4' }));
       } else if (chatMessage.toLowerCase().includes('check status')) {
         botResponse = 'The drone is currently inactive and ready for your delivery request.';
       } else if (chatMessage.toLowerCase().includes('help')) {
         botResponse = 'I can assist with: setting delivery locations, checking drone status, or guiding you through the delivery process. What would you like to do?';
       } else {
-        botResponse = 'I understand you want to: "' + chatMessage + '". Is there anything specific about your delivery request you'd like me to help with?';
+        botResponse = `I understand you want to: "${chatMessage}". Is there anything specific about your delivery request you'd like me to help with?`;
       }
       
       setChatHistory(prev => [...prev, { sender: 'bot', message: botResponse }]);
