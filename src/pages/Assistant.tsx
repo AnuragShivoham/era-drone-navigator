@@ -1,79 +1,50 @@
-
-import React, { useState, useRef, useEffect } from 'react';
-import NavLayout from '@/components/layout/NavLayout';
-import { 
-  Card, 
-  CardContent, 
-  CardHeader, 
+import React, { useState, useRef, useEffect } from "react";
+import NavLayout from "@/components/layout/NavLayout";
+import {
+  Card,
+  CardContent,
+  CardHeader,
   CardTitle,
-  CardDescription, 
-  CardFooter 
-} from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Send, Mic, CornerDownLeft } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
+  CardDescription,
+  CardFooter,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Send, Mic, CornerDownLeft } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { useOfflineAssistant } from "@/hooks/useOfflineAssistant";
 
 const Assistant = () => {
   const { toast } = useToast();
-  const [message, setMessage] = useState('');
+  const [message, setMessage] = useState("");
   const [isRecording, setIsRecording] = useState(false);
-  const [chatHistory, setChatHistory] = useState<Array<{sender: 'user' | 'bot', message: string}>>([
-    { sender: 'bot', message: 'Hello! I am your ERA AI Assistant. How can I help you today?' }
-  ]);
-  
+  const { chatHistory, sendMessage, isProcessing } = useOfflineAssistant();
+
   const chatContainerRef = useRef<HTMLDivElement>(null);
-  
+
   useEffect(() => {
     if (chatContainerRef.current) {
       chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
     }
   }, [chatHistory]);
-  
+
   const handleSendMessage = () => {
     if (!message.trim()) return;
-    
-    // Add user message to chat
-    setChatHistory(prev => [...prev, { sender: 'user', message }]);
-    
-    // Clear input
-    setMessage('');
-    
-    // Simulate bot response based on user input
-    setTimeout(() => {
-      let botResponse = '';
-      const lowerMessage = message.toLowerCase();
-      
-      if (lowerMessage.includes('hello') || lowerMessage.includes('hi')) {
-        botResponse = 'Hello there! How can I assist with your drone delivery needs today?';
-      } else if (lowerMessage.includes('delivery') && lowerMessage.includes('how')) {
-        botResponse = 'To place a delivery request, please provide your name, contact number, and select a drop zone. You can do this via the Delivery form in the app.';
-      } else if (lowerMessage.includes('track') || lowerMessage.includes('status')) {
-        botResponse = 'You can track your delivery in the History section. If you have a specific parcel ID, I can help you check its current status.';
-      } else if (lowerMessage.includes('problem') || lowerMessage.includes('help')) {
-        botResponse = 'I\'m sorry to hear you\'re having trouble. Could you please describe the issue in more detail so I can assist you better?';
-      } else if (lowerMessage.includes('drone') && lowerMessage.includes('how')) {
-        botResponse = 'Our drones navigate using a combination of GPS, computer vision, and predefined waypoints. They can operate completely offline and use LoRa technology for long-range communication.';
-      } else if (lowerMessage.includes('weather')) {
-        botResponse = 'Current weather conditions are suitable for drone operations. Clear skies with wind speed at 12 km/h.';
-      } else {
-        botResponse = 'I understand you\'re asking about: "' + message + '". Could you please provide more details or clarify your question so I can better assist you?';
-      }
-      
-      setChatHistory(prev => [...prev, { sender: 'bot', message: botResponse }]);
-    }, 1000);
+
+    sendMessage(message);
+    setMessage("");
   };
-  
+
   const handleVoiceRecord = () => {
     setIsRecording(!isRecording);
-    
+
     if (!isRecording) {
       // Start recording simulation
       toast({
         title: "Voice Recording Started",
         description: "Speak clearly...",
       });
-      
+
       // Simulate end of recording after 3 seconds
       setTimeout(() => {
         setIsRecording(false);
@@ -81,7 +52,7 @@ const Assistant = () => {
           title: "Voice Recorded",
           description: "Processing your request...",
         });
-        
+
         // Simulate processing
         setTimeout(() => {
           const simulatedText = "How do I place a delivery request?";
@@ -99,34 +70,39 @@ const Assistant = () => {
       });
     }
   };
-  
+
   return (
     <NavLayout>
       <div className="space-y-6">
         <h1 className="text-2xl font-bold">AI Assistant</h1>
-        
+
         <Card className="bg-era-card border-era-primary/20">
           <CardHeader>
             <CardTitle>ERA Voice Assistant</CardTitle>
-            <CardDescription>Ask questions or request help with your delivery</CardDescription>
+            <CardDescription>
+              Ask questions or request help with your delivery
+            </CardDescription>
           </CardHeader>
-          
+
           <CardContent>
-            <div 
+            <div
               ref={chatContainerRef}
               className="h-[400px] overflow-y-auto mb-4 space-y-4 p-4 bg-era-background rounded-lg"
             >
               {chatHistory.map((chat, index) => (
-                <div 
+                <div
                   key={index}
-                  className={`flex ${chat.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+                  className={`flex ${
+                    chat.sender === "user" ? "justify-end" : "justify-start"
+                  }`}
                 >
-                  <div 
+                  <div
                     className={`
                       max-w-[80%] rounded-lg px-4 py-2
-                      ${chat.sender === 'user' 
-                        ? 'bg-era-primary text-white'
-                        : 'bg-era-card text-era-text'
+                      ${
+                        chat.sender === "user"
+                          ? "bg-era-primary text-white"
+                          : "bg-era-card text-era-text"
                       }
                     `}
                   >
@@ -134,9 +110,14 @@ const Assistant = () => {
                   </div>
                 </div>
               ))}
+              {isProcessing && (
+                <div className="flex justify-start max-w-[80%] rounded-lg px-4 py-2 bg-era-card text-era-text italic opacity-70">
+                  Assistant is typing...
+                </div>
+              )}
             </div>
           </CardContent>
-          
+
           <CardFooter>
             <div className="flex w-full space-x-2">
               <Input
@@ -145,32 +126,35 @@ const Assistant = () => {
                 placeholder="Type your message..."
                 className="bg-era-background border-era-primary/20"
                 onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
+                  if (e.key === "Enter") {
                     handleSendMessage();
                   }
                 }}
               />
-              <Button 
-                type="button" 
-                size="icon" 
+              <Button
+                type="button"
+                size="icon"
                 variant="outline"
-                className={`border-era-primary/20 ${isRecording ? 'bg-red-500 text-white' : ''}`}
+                className={`border-era-primary/20 ${
+                  isRecording ? "bg-red-500 text-white" : ""
+                }`}
                 onClick={handleVoiceRecord}
               >
                 <Mic className="h-4 w-4" />
               </Button>
-              <Button 
-                type="button" 
+              <Button
+                type="button"
                 size="icon"
                 className="bg-era-primary hover:bg-era-primary/80"
                 onClick={handleSendMessage}
+                disabled={isProcessing}
               >
                 <Send className="h-4 w-4" />
               </Button>
             </div>
           </CardFooter>
         </Card>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <Card className="bg-era-card border-era-primary/20">
             <CardHeader>
@@ -198,7 +182,7 @@ const Assistant = () => {
               </ul>
             </CardContent>
           </Card>
-          
+
           <Card className="bg-era-card border-era-primary/20">
             <CardHeader>
               <CardTitle className="text-lg">Assistant Capabilities</CardTitle>
