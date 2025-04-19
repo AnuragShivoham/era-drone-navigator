@@ -1,28 +1,13 @@
 import React, { useState } from 'react';
-import { 
-  Card, 
-  CardContent, 
-  CardHeader, 
-  CardTitle,
-  CardDescription
-} from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
-} from '@/components/ui/table';
-import { Badge } from '@/components/ui/badge';
-import { Search, Package, Calendar, CheckCircle, XCircle, Clock } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { Package } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import SearchBar from './SearchBar';
+import DeliveryTable from './DeliveryTable';
+import DeliveryDetails from './DeliveryDetails';
+import { DeliveryType } from './types';
 
-// Mock data for delivery history
-const DELIVERY_HISTORY = [
+// Mock data
+const DELIVERY_HISTORY: DeliveryType[] = [
   {
     id: 'DEL-001',
     date: '2025-04-18',
@@ -79,34 +64,6 @@ const DeliveryHistory: React.FC = () => {
     );
   });
 
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case 'delivered':
-        return (
-          <Badge className="bg-green-500 hover:bg-green-600">
-            <CheckCircle className="mr-1 h-3 w-3" />
-            Delivered
-          </Badge>
-        );
-      case 'failed':
-        return (
-          <Badge variant="destructive">
-            <XCircle className="mr-1 h-3 w-3" />
-            Failed
-          </Badge>
-        );
-      case 'pending':
-        return (
-          <Badge variant="outline" className="border-amber-500 text-amber-500">
-            <Clock className="mr-1 h-3 w-3" />
-            Pending
-          </Badge>
-        );
-      default:
-        return <Badge>{status}</Badge>;
-    }
-  };
-
   return (
     <Card 
       className="bg-era-background border-[#8B5CF6] border-2 rounded-xl shadow-[0_0_15px_rgba(139,92,246,0.3)]"
@@ -116,104 +73,29 @@ const DeliveryHistory: React.FC = () => {
           <Package className="mr-2 h-5 w-5 text-[#8B5CF6]" />
           Delivery History
         </CardTitle>
-        <CardDescription className="text-white/70">View and track your past delivery requests</CardDescription>
+        <CardDescription className="text-white/70">
+          View and track your past delivery requests
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
           <div className="flex space-x-2">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-3 h-4 w-4 text-white/50" />
-              <Input
-                placeholder="Search deliveries..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-9 bg-era-background/10 border-[#8B5CF6] text-white placeholder-white/50 focus:ring-[#8B5CF6] focus:border-[#8B5CF6]"
-              />
-            </div>
+            <SearchBar 
+              searchQuery={searchQuery}
+              onSearchChange={setSearchQuery}
+            />
           </div>
           
-          <div className="rounded-md border-2 border-[#8B5CF6] overflow-hidden">
-            <Table>
-              <TableHeader className="bg-era-background/20">
-                <TableRow>
-                  {['Parcel ID', 'Date & Time', 'Location', 'Status', 'Actions'].map((header) => (
-                    <TableHead key={header} className="text-white">{header}</TableHead>
-                  ))}
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredDeliveries.length > 0 ? (
-                  filteredDeliveries.map((delivery) => (
-                    <TableRow 
-                      key={delivery.id}
-                      className={cn(
-                        "hover:bg-[#8B5CF6]/10 text-white",
-                        selectedParcel === delivery.id ? "bg-[#8B5CF6]/5" : ""
-                      )}
-                    >
-                      <TableCell className="font-medium">{delivery.id}</TableCell>
-                      <TableCell>
-                        <div className="flex items-center">
-                          <Calendar className="mr-2 h-3 w-3 text-white/50" />
-                          {`${delivery.date}, ${delivery.time}`}
-                        </div>
-                      </TableCell>
-                      <TableCell>{delivery.location}</TableCell>
-                      <TableCell>{getStatusBadge(delivery.status)}</TableCell>
-                      <TableCell>
-                        <Button 
-                          variant="ghost" 
-                          size="sm"
-                          className="hover:bg-[#8B5CF6]/10 text-white"
-                          onClick={() => setSelectedParcel(
-                            selectedParcel === delivery.id ? null : delivery.id
-                          )}
-                        >
-                          {selectedParcel === delivery.id ? "Hide Details" : "View Details"}
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))
-                ) : (
-                  <TableRow>
-                    <TableCell colSpan={5} className="text-center py-4 text-white/50">
-                      No deliveries found matching your search
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          </div>
+          <DeliveryTable 
+            deliveries={filteredDeliveries}
+            selectedParcel={selectedParcel}
+            onSelectParcel={setSelectedParcel}
+          />
           
           {selectedParcel && (
-            <Card className="bg-era-background/20 border-[#8B5CF6] border-2 rounded-xl">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-white">Delivery Details</CardTitle>
-              </CardHeader>
-              <CardContent>
-                {(() => {
-                  const delivery = DELIVERY_HISTORY.find(d => d.id === selectedParcel);
-                  if (!delivery) return null;
-                  
-                  return (
-                    <div className="space-y-3 text-sm text-white">
-                      {[
-                        { label: 'Parcel ID:', value: delivery.id },
-                        { label: 'Recipient:', value: delivery.recipient },
-                        { label: 'Location:', value: delivery.location },
-                        { label: 'Date & Time:', value: `${delivery.date}, ${delivery.time}` },
-                        { label: 'Status:', value: getStatusBadge(delivery.status) }
-                      ].map(({ label, value }) => (
-                        <div key={label} className="grid grid-cols-2 gap-1">
-                          <div className="text-white/70">{label}</div>
-                          <div>{value}</div>
-                        </div>
-                      ))}
-                    </div>
-                  );
-                })()}
-              </CardContent>
-            </Card>
+            <DeliveryDetails 
+              delivery={DELIVERY_HISTORY.find(d => d.id === selectedParcel)!}
+            />
           )}
         </div>
       </CardContent>
