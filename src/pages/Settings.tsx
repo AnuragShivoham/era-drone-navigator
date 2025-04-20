@@ -1,5 +1,4 @@
-
-import React from 'react';
+import React, { useState } from 'react';
 import NavLayout from '@/components/layout/NavLayout';
 import { 
   Card, 
@@ -26,29 +25,43 @@ import {
 } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
+import { useUnifiedOfflineAssistant } from '@/hooks/useUnifiedOfflineAssistant';
 
 const Settings = () => {
   const { toast } = useToast();
-  
+
+  const {
+    connectionStatus,
+    setConnectToOfflineServer,
+    connectionError,
+  } = useUnifiedOfflineAssistant();
+
+  const [offlineServerEnabled, setOfflineServerEnabled] = useState(false);
+
+  const handleToggleOfflineServer = (enabled: boolean) => {
+    setOfflineServerEnabled(enabled);
+    setConnectToOfflineServer(enabled);
+  };
+
   const handleSave = () => {
     toast({
-      title: "Settings Saved",
-      description: "Your preferences have been updated."
+      title: 'Settings Saved',
+      description: 'Your preferences have been updated.',
     });
   };
-  
+
   return (
     <NavLayout>
       <div className="space-y-6">
         <h1 className="text-2xl font-bold">Settings</h1>
-        
+
         <Tabs defaultValue="general" className="w-full">
           <TabsList className="grid grid-cols-3 mb-4">
             <TabsTrigger value="general">General</TabsTrigger>
             <TabsTrigger value="security">Security</TabsTrigger>
             <TabsTrigger value="notifications">Notifications</TabsTrigger>
           </TabsList>
-          
+
           <TabsContent value="general">
             <Card className="bg-era-card border-era-primary/20">
               <CardHeader>
@@ -58,7 +71,7 @@ const Settings = () => {
               <CardContent className="space-y-6">
                 <div className="space-y-4">
                   <h3 className="text-lg font-medium">App Preferences</h3>
-                  
+
                   <div className="flex items-center justify-between">
                     <div className="space-y-0.5">
                       <Label className="text-base">Dark Mode</Label>
@@ -66,7 +79,7 @@ const Settings = () => {
                     </div>
                     <Switch defaultChecked />
                   </div>
-                  
+
                   <div className="flex items-center justify-between">
                     <div className="space-y-0.5">
                       <Label className="text-base">Offline Mode</Label>
@@ -74,7 +87,7 @@ const Settings = () => {
                     </div>
                     <Switch defaultChecked />
                   </div>
-                  
+
                   <div className="flex items-center justify-between">
                     <div className="space-y-0.5">
                       <Label className="text-base">Voice Commands</Label>
@@ -83,10 +96,38 @@ const Settings = () => {
                     <Switch defaultChecked />
                   </div>
                 </div>
-                
+
+                <div className="space-y-4">
+                  <h3 className="text-lg font-medium">Offline AI Server Connection</h3>
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5 max-w-[70%]">
+                      <Label className="text-base">Connect to Offline AI Server</Label>
+                      <p className="text-sm text-era-muted">
+                        Toggle to enable or disable connection to the offline AI server.
+                      </p>
+                      {connectionStatus === "connecting" && (
+                        <p className="text-xs text-yellow-600">Connecting to offline AI server...</p>
+                      )}
+                      {connectionStatus === "connected" && (
+                        <p className="text-xs text-green-600">Connected successfully to offline AI server.</p>
+                      )}
+                      {connectionStatus === "error" && connectionError && (
+                        <p className="text-xs text-red-600">Error: {connectionError}</p>
+                      )}
+                      {connectionStatus === "disconnected" && (
+                        <p className="text-xs text-era-muted">Not connected to offline AI server.</p>
+                      )}
+                    </div>
+                    <Switch
+                      checked={offlineServerEnabled}
+                      onCheckedChange={handleToggleOfflineServer}
+                    />
+                  </div>
+                </div>
+
                 <div className="space-y-4">
                   <h3 className="text-lg font-medium">Location</h3>
-                  
+
                   <div className="space-y-2">
                     <Label htmlFor="defaultLocation">Default Location</Label>
                     <div className="flex items-center space-x-2">
@@ -99,7 +140,7 @@ const Settings = () => {
                       />
                     </div>
                   </div>
-                  
+
                   <div className="flex items-center justify-between">
                     <div className="space-y-0.5">
                       <Label className="text-base">GPS Tracking</Label>
@@ -108,10 +149,10 @@ const Settings = () => {
                     <Switch defaultChecked />
                   </div>
                 </div>
-                
+
                 <div className="space-y-4">
                   <h3 className="text-lg font-medium">Language & Region</h3>
-                  
+
                   <div className="space-y-2">
                     <Label htmlFor="language">Language</Label>
                     <div className="flex items-center space-x-2">
@@ -146,7 +187,7 @@ const Settings = () => {
               </CardFooter>
             </Card>
           </TabsContent>
-          
+
           <TabsContent value="security">
             <Card className="bg-era-card border-era-primary/20">
               <CardHeader>
@@ -235,7 +276,7 @@ const Settings = () => {
               </CardFooter>
             </Card>
           </TabsContent>
-          
+
           <TabsContent value="notifications">
             <Card className="bg-era-card border-era-primary/20">
               <CardHeader>
