@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from "react";
 import NavLayout from "@/components/layout/NavLayout";
 import {
@@ -39,13 +40,11 @@ const Assistant = () => {
     setIsRecording(!isRecording);
 
     if (!isRecording) {
-      // Start recording simulation
       toast({
         title: "Voice Recording Started",
         description: "Speak clearly...",
       });
 
-      // Simulate end of recording after 3 seconds
       setTimeout(() => {
         setIsRecording(false);
         toast({
@@ -53,7 +52,6 @@ const Assistant = () => {
           description: "Processing your request...",
         });
 
-        // Simulate processing
         setTimeout(() => {
           const simulatedText = "How do I place a delivery request?";
           setMessage(simulatedText);
@@ -64,7 +62,6 @@ const Assistant = () => {
         }, 1500);
       }, 3000);
     } else {
-      // Stop recording simulation
       toast({
         title: "Voice Recording Stopped",
       });
