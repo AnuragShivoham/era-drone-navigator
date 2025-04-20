@@ -39,6 +39,11 @@ const navItems: NavItem[] = [
     icon: Settings,
     label: 'Settings',
     path: '/settings'
+  },
+  {
+    icon: MessageSquare,
+    label: 'Offline AI',
+    path: '/offline-ai'
   }
 ];
 
