@@ -13,12 +13,12 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Send, Mic } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { useOfflineAssistant } from "@/hooks/useOfflineAssistant";
+import { useOfflineAIService } from "@/hooks/useOfflineAIService";
 
 const OfflineAI = () => {
   const { toast } = useToast();
   const [message, setMessage] = useState("");
-  const { chatHistory, sendMessage, isProcessing } = useOfflineAssistant();
+  const { chatHistory, sendMessage, isProcessing } = useOfflineAIService();
 
   const chatContainerRef = useRef<HTMLDivElement>(null);
 
@@ -100,6 +100,7 @@ const OfflineAI = () => {
                     handleSendMessage();
                   }
                 }}
+                disabled={isProcessing}
               />
               <Button
                 type="button"
@@ -107,6 +108,7 @@ const OfflineAI = () => {
                 variant="outline"
                 className="border-era-primary/20"
                 onClick={handleVoiceRecord}
+                disabled={isProcessing}
               >
                 <Mic className="h-4 w-4" />
               </Button>
