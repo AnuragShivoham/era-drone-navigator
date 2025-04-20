@@ -61,9 +61,9 @@ export function useOfflineAssistant(initialBotMessage?: string): UseOfflineAssis
 } else if (lowerMessage.includes("working") && lowerMessage.includes("hours")) {
   return "Drone deliveries are operational from 7 AM to 7 PM daily.";
     }
-    else {
-      return `I understand you're asking about: "${userMessage}". Could you please provide more details or clarify your question so I can better assist you?`;
-    }
+   // else {
+   //   return `I understand you're asking about: "${userMessage}". Could you please provide more details or clarify your question so I can better assist you?`;
+  //  }
   };
 
   const sendMessage = (message: string) => {
